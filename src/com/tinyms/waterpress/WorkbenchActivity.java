@@ -2,6 +2,7 @@ package com.tinyms.waterpress;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -296,7 +297,7 @@ public class WorkbenchActivity extends Activity {
     
     private void query_match(){
     	matchs.clear();
-    	SQLite sql = new SQLite(WorkbenchActivity.this,DB_PATH+DB_NAME,null,3);
+    	SQLite sql = new SQLite(WorkbenchActivity.this,DatabasePath(),null,3);
     	SQLiteDatabase db = sql.getReadableDatabase();
     	String querySQL = "SELECT ID,Score,Asia,Result,Actual_Result,TeamNames,Last10TextStyle,Last6TextStyle," +
     			"Last4TextStyle,Odds_WL,Odds_AM,Odds_LB,Odds_365,Odds_YSB," +
@@ -364,30 +365,33 @@ public class WorkbenchActivity extends Activity {
     	c.close();
     	db.close();
     }
-    
+    private String DatabasePath(){
+    	File SDFile = android.os.Environment.getExternalStorageDirectory();
+    	return SDFile.getAbsolutePath()  
+                + File.separator + DB_NAME;
+    }
     private void CheckDatabse(){
     	Log.v(LogKey, "Check Database..");
-    	if ((new File(DB_PATH + DB_NAME)).exists() == false) {
-			File f = new File(DB_PATH);
-			if (!f.exists()) {
-				f.mkdir();
-			}
-
-			try {
-				InputStream is = getBaseContext().getAssets().open(DB_NAME);
-				OutputStream os = new FileOutputStream(DB_PATH + DB_NAME);
-				byte[] buffer = new byte[1024];
-				int length;
-				while ((length = is.read(buffer)) > 0) {
-					os.write(buffer, 0, length);
-				}
-				os.flush();
-				os.close();
-				is.close();
-				Log.v(LogKey, "Copy Database Success..");
-			} catch (Exception e) {
-				Log.v(LogKey, e.getMessage());
-			}
-		}
+    	String state = android.os.Environment.getExternalStorageState();
+    	if (state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+    		File myFile = new File(DatabasePath());
+    		if (!myFile.exists()) { 
+    			try {
+    				InputStream is = getBaseContext().getAssets().open(DB_NAME);
+    				OutputStream os = new FileOutputStream(myFile);
+    				byte[] buffer = new byte[1024];
+    				int length;
+    				while ((length = is.read(buffer)) > 0) {
+    					os.write(buffer, 0, length);
+    				}
+    				os.flush();
+    				os.close();
+    				is.close();
+    				Log.v(LogKey, "Copy Database Success..");
+    			} catch (Exception e) {
+    				Log.v(LogKey, e.getMessage());
+    			}
+            }
+    	}
     }
 }
