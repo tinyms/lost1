@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">遁去的一</string>
+    <string name="app_name">毒估球检</string>
     <string name="action_settings_1_to_1">实力1彩果1</string>
     <string name="action_settings_3_to_0">实力3彩果0</string>
     <string name="action_settings_0_to_3">实力0彩果3</string>
     <string name="action_settings_3">彩果3</string>
     <string name="action_settings_1">彩果1</string>
     <string name="action_settings_0">彩果0</string>
-    <string name="action_settings_top_draw">高平赔</string>
     <string name="match_search_all">全部</string>
     <string name="details_return_to_main">返回</string>
     <string name="title_activity_details">彩果(实力)与欧盘</string>
+    <drawable name="details_bk_color">#f1f1f1</drawable>
 </resources>

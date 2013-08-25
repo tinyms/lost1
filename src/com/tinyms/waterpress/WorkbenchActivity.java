@@ -2,7 +2,6 @@ package com.tinyms.waterpress;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
@@ -34,8 +33,7 @@ import android.widget.Toast;
 
 public class WorkbenchActivity extends Activity {
 	public static String LogKey = "WaterPress";
-	private static String DB_PATH = "/data/data/com.tinyms.waterpress/database/";
-	private static String DB_NAME = "_cache";
+	private static String DB_NAME = "matchs";
 	private View mainView;
 	private MatchAdapter ds = null;
 	private static String MATCH_RESULT_EXPRESSION = "310";
@@ -58,18 +56,21 @@ public class WorkbenchActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View view, int position,
 					long id) {
 				Map<String,String> item = (Map<String,String>)matchs.get(Integer.valueOf(String.valueOf(id)));
-				
+				QueryMatchOddsDetails(item);
 				StringBuffer sb_strike = new StringBuffer();
-				sb_strike.append("实力: <font color='#336699'>"+item.get("Result")+"</font>");
-				sb_strike.append(" 赛果: "+GetResultChineseStyle(item.get("Actual_Result"))+" <font color='#CC6600'>"+item.get("Score")+"</font>");
-				sb_strike.append(" 让球: <font color='#FF0033'>"+item.get("Asia")+"</font><br/>");
-				
-				sb_strike.append("<br/>近10场: "+item.get("Last10TextStyle")+"<br/>");
-				sb_strike.append("近06场: "+item.get("Last6TextStyle")+"<br/>");
-				sb_strike.append("近04场: "+item.get("Last4TextStyle")+"<br/>");
+				sb_strike.append("<br/>总10场: "+item.get("last_mix")+"<br/>");
+				sb_strike.append("近10场: "+item.get("last_10")+"<br/>");
+				sb_strike.append("近06场: "+item.get("last_6")+"<br/>");
+				sb_strike.append("近04场: "+item.get("last_4")+"<br/>");
 				
 				String text_strike = sb_strike.toString();
-				text_strike += "<br/>近6场战绩: <font color='#003366'>"+item.get("Last4BattleHistoryDesc")+"</font><br/>";
+				StringBuffer sb_tip = new StringBuffer();
+				sb_tip.append("实力: <font color='#336699'>"+item.get("balls_diff")+"</font>");
+				sb_tip.append(" 预测: <font color='#FF0033'>"+item.get("detect_result")+"</font>");
+				sb_tip.append(" 赛果: "+GetResultChineseStyle(item.get("actual_result"))+" <font color='#CC6600'>"+item.get("score")+"</font><br/>");
+				text_strike += "<br/>总6场战绩: <font color='#003366'>"+item.get("last_mix_battle")+"</font>";
+				text_strike += "<br/>近6场战绩: <font color='#003366'>"+item.get("last_battle")+"</font><br/><br/>";
+				text_strike += sb_tip.toString();
 				
 				StringBuffer sb = new StringBuffer();
 				sb.append(oddsValueEmptyIf("威廉","WL",item));
@@ -93,7 +94,7 @@ public class WorkbenchActivity extends Activity {
 				Intent intent = new Intent(WorkbenchActivity.this,DetailsActivity.class);
 				intent.putExtra(DetailsActivity.KEY_STRIKE, text_strike);
 				intent.putExtra(DetailsActivity.KEY_ODDS, sb.toString());
-				intent.putExtra(DetailsActivity.KEY_TEAM_NAMES_TITLE, "["+item.get("EventName")+"] "+item.get("TeamNames"));
+				intent.putExtra(DetailsActivity.KEY_TEAM_NAMES_TITLE, "["+item.get("evt_name")+"] "+item.get("vs_team"));
 				startActivity(intent);
 			}});
         ImageButton refresh = (ImageButton)findViewById(R.id.btn_310_search);
@@ -117,7 +118,41 @@ public class WorkbenchActivity extends Activity {
 			Nodify("更换成功.");
 		}
     }
-    
+    private void QueryMatchOddsDetails(Map<String,String> item){
+    	String sql = "SELECT com_name,r_3,r_1,r_0,r_3_c,r_1_c,r_0_c FROM lottery_odds WHERE battle_id=?";
+    	SQLite sqlite = new SQLite(WorkbenchActivity.this,DatabasePath(),null,3);
+    	SQLiteDatabase db = sqlite.getReadableDatabase();
+    	Cursor c = db.rawQuery(sql, new String[]{item.get("id")});
+    	c.moveToFirst();
+    	while(!c.isAfterLast()){
+    		String name = c.getString(0);
+    		String r_3 = String.valueOf(FormatFloatWith2Bit(c.getDouble(1)));
+    		String r_1 = String.valueOf(FormatFloatWith2Bit(c.getDouble(2)));
+    		String r_0 = String.valueOf(FormatFloatWith2Bit(c.getDouble(3)));
+    		String r_3_c = String.valueOf(FormatFloatWith2Bit(c.getDouble(4)));
+    		String r_1_c = String.valueOf(FormatFloatWith2Bit(c.getDouble(5)));
+    		String r_0_c = String.valueOf(FormatFloatWith2Bit(c.getDouble(6)));
+    		if("WL".equals(name)){
+    			item.put("Odds_WL", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_WL_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("LB".equals(name)){
+    			item.put("Odds_LB", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_LB_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("YB".equals(name)){
+    			item.put("Odds_YSB", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_YSB_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("BT".equals(name)){
+    			item.put("Odds_365", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_365_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("AM".equals(name)){
+    			item.put("Odds_AM", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_AM_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}
+    		c.moveToNext();
+    	}
+    	c.close();
+    	db.close();
+    }
     private void QueryHistoryData(){
     	query_match();
 		if(ds!=null){
@@ -149,6 +184,9 @@ public class WorkbenchActivity extends Activity {
     }
     
     private static String OddsStatistics(String oddsStart,String oddsEnd){
+    	if(oddsStart==null||oddsStart.equals("")){
+    		return "";
+    	}
     	StringBuffer diff = new StringBuffer();
     	float[] start_odds = OddsToFloats(oddsStart);
     	float[] end_odds = OddsToFloats(oddsEnd);
@@ -158,35 +196,35 @@ public class WorkbenchActivity extends Activity {
     		float lost_diff = end_odds[2] - start_odds[2];
     		
     		if(win_diff>0){
-    			diff.append(" <font color='red'>"+FormatFloatWith2Bit(win_diff)+"</font>");
+    			diff.append(" <font color='red'>+"+FormatFloatWith2Bit(win_diff)+"</font>");
     		}else if(win_diff<0){
     			diff.append(" <font color='green'>"+FormatFloatWith2Bit(win_diff)+"</font>");
     		}if(win_diff==0){
-    			diff.append(" 0.00");
+    			diff.append(" +0.00");
     		}
     		
     		if(draw_diff>0){
-    			diff.append(" <font color='red'>"+FormatFloatWith2Bit(draw_diff)+"</font>");
+    			diff.append(" <font color='red'>+"+FormatFloatWith2Bit(draw_diff)+"</font>");
     		}else if(draw_diff<0){
     			diff.append(" <font color='green'>"+FormatFloatWith2Bit(draw_diff)+"</font>");
     		}if(draw_diff==0){
-    			diff.append(" 0.00");
+    			diff.append(" +0.00");
     		}
     		
     		if(lost_diff>0){
-    			diff.append(" <font color='red'>"+FormatFloatWith2Bit(lost_diff)+"</font>");
+    			diff.append(" <font color='red'>+"+FormatFloatWith2Bit(lost_diff)+"</font>");
     		}else if(lost_diff<0){
     			diff.append(" <font color='green'>"+FormatFloatWith2Bit(lost_diff)+"</font>");
     		}if(lost_diff==0){
-    			diff.append(" 0.00");
+    			diff.append(" +0.00");
     		}
     	}
     	return diff.toString().trim();
     }
     //两位小数
-    public static String FormatFloatWith2Bit(float v){
-    	float c = (float)(Math.round(v*100))/100;
-    	return String.valueOf(c);
+    public static String FormatFloatWith2Bit(double v){
+    	DecimalFormat f = new DecimalFormat("0.00");
+    	return f.format(v);
     }
     
     private static String OddsModelStatistics(String oddsStart,String oddsEnd){
@@ -284,14 +322,6 @@ public class WorkbenchActivity extends Activity {
 				QueryHistoryData("1_to_1");
 				return true;
 			}});
-        MenuItem query_history_data_top_draw = menu.findItem(R.id.query_history_data_top_draw);
-        query_history_data_top_draw.setOnMenuItemClickListener(new OnMenuItemClickListener(){
-
-			@Override
-			public boolean onMenuItemClick(MenuItem arg0) {
-				QueryHistoryData("top_draw");
-				return true;
-			}});
         return true;
     }
     
@@ -299,66 +329,45 @@ public class WorkbenchActivity extends Activity {
     	matchs.clear();
     	SQLite sql = new SQLite(WorkbenchActivity.this,DatabasePath(),null,3);
     	SQLiteDatabase db = sql.getReadableDatabase();
-    	String querySQL = "SELECT ID,Score,Asia,Result,Actual_Result,TeamNames,Last10TextStyle,Last6TextStyle," +
-    			"Last4TextStyle,Odds_WL,Odds_AM,Odds_LB,Odds_365,Odds_YSB," +
-    			"Odds_WL_Change,Odds_AM_Change,Odds_LB_Change,Odds_365_Change,Odds_YSB_Change," +
-    			"EventName,Last4BattleHistoryDesc,Top_Draw FROM match ";
+    	String querySQL = "SELECT id,score,actual_result,detect_result,balls_diff,vs_team," +
+    			"last_mix,last_10,last_6,last_4,last_mix_battle,last_battle,url_key,vs_date,evt_name FROM lottery_battle";
 		if (!"310".equals(MATCH_RESULT_EXPRESSION)) {
 			if(MATCH_RESULT_EXPRESSION.indexOf("_to_")!=-1){
 				String[] exps = MATCH_RESULT_EXPRESSION.split("_to_");
-				querySQL += "WHERE Actual_Result=" + exps[1] + " AND Result LIKE '%"+exps[0]+"%'";
-			}else if(MATCH_RESULT_EXPRESSION.equals("top_draw")){
-				querySQL += "WHERE Top_Draw >= 0.4";
+				querySQL += " WHERE actual_result=" + exps[1] + " AND detect_result LIKE '%"+exps[0]+"%'";
 			}
 			else{
-				querySQL += "WHERE Actual_Result=" + MATCH_RESULT_EXPRESSION;
+				querySQL += " WHERE actual_result=" + MATCH_RESULT_EXPRESSION;
 			}
 		}
-    	querySQL+=" ORDER BY RANDOM() LIMIT 14";
+    	querySQL+=" ORDER BY RANDOM() LIMIT 25";
     	Log.v(LogKey, querySQL);
     	Cursor c = db.rawQuery(querySQL, null);
     	c.moveToFirst();
     	while(!c.isAfterLast()){
     		Map<String,String> item = new HashMap<String,String>();
-    		item.put("ID", String.valueOf(c.getInt(0)));
-    		item.put("Score", c.getString(1));
-    		int rq_int = c.getInt(2);
-    		String rq = String.valueOf(rq_int);
-    		if(rq_int>0){
-    			rq = "+"+rq;
-    		}
-    		item.put("Asia", rq);
-    		item.put("Result", c.getString(3));
-    		item.put("Actual_Result", String.valueOf(c.getInt(4)));
-    		item.put("TeamNames", c.getString(5));
-    		item.put("Last10TextStyle", c.getString(6));
-    		item.put("Last6TextStyle", c.getString(7));
-    		item.put("Last4TextStyle", c.getString(8));
-    		item.put("Odds_WL", c.getString(9));
-    		item.put("Odds_AM", c.getString(10));
-    		item.put("Odds_LB", c.getString(11));
-    		item.put("Odds_365", c.getString(12));
-    		item.put("Odds_YSB", c.getString(13));
-    		item.put("Odds_WL_Change", c.getString(14));
-    		item.put("Odds_AM_Change", c.getString(15));
-    		item.put("Odds_LB_Change", c.getString(16));
-    		item.put("Odds_365_Change", c.getString(17));
-    		item.put("Odds_YSB_Change", c.getString(18));
-    		item.put("EventName", c.getString(19));
-    		item.put("Last4BattleHistoryDesc", c.getString(20));
+    		item.put("id", String.valueOf(c.getInt(0)));
+    		item.put("score", c.getString(1));
+    		item.put("actual_result", String.valueOf(c.getInt(2)));
+    		item.put("detect_result", c.getString(3));
+    		item.put("balls_diff", String.valueOf(c.getDouble(4)));
+    		item.put("vs_team", c.getString(5));
+    		item.put("last_mix", c.getString(6));
+    		item.put("last_10", c.getString(7));
+    		item.put("last_6", c.getString(8));
+    		item.put("last_4", c.getString(9));
+    		item.put("last_mix_battle", c.getString(10));
+    		item.put("last_battle", c.getString(11));
+    		item.put("url_key", c.getString(12));
+    		item.put("vs_date", c.getString(13));
+    		item.put("evt_name", c.getString(14));
     		
-    		String result = GetResultChineseStyle(item.get("Actual_Result"));
-    		item.put("ItemTitle", "["+item.get("EventName")+"]"+item.get("TeamNames"));
-    		String odds = "";
-    		if(item.get("Odds_WL")!=null&&!"".equals(item.get("Odds_WL"))){
-    			odds = item.get("Odds_WL")+":&lt;威廉&gt;";
-    		}else if(item.get("Odds_365")!=null&&!"".equals(item.get("Odds_365"))){
-    			odds = item.get("Odds_365")+":&lt;贝塔&gt;";
-    		}else if(item.get("Odds_LB")!=null&&!"".equals(item.get("Odds_LB"))){
-    			odds = item.get("Odds_LB")+":&lt;立博&gt;";
-    		}
-    		//odds = "<font color='#000000'>"+odds+"</font>";
-    		item.put("ItemText", "["+result+"]"+"(<font color='#336699'>"+item.get("Result")+"</font>)"+odds);
+    		item.put("ItemTitle", "["+item.get("evt_name")+"]"+item.get("vs_team"));
+    		StringBuffer sb_tip = new StringBuffer();
+			sb_tip.append("实力: <font color='#336699'>"+item.get("balls_diff")+"</font>");
+			sb_tip.append(" 预测: <font color='#FF0033'>"+item.get("detect_result")+"</font>");
+			sb_tip.append(" 赛果: "+GetResultChineseStyle(item.get("actual_result"))+" <font color='#CC6600'>"+item.get("score")+"</font>");
+    		item.put("ItemText", sb_tip.toString());
     		matchs.add(item);
     		c.moveToNext();
     	}
@@ -370,6 +379,7 @@ public class WorkbenchActivity extends Activity {
     	return SDFile.getAbsolutePath()  
                 + File.separator + DB_NAME;
     }
+    private static boolean isDebug = false;
     private void CheckDatabse(){
     	Log.v(LogKey, "Check Database..");
     	String state = android.os.Environment.getExternalStorageState();
@@ -391,6 +401,11 @@ public class WorkbenchActivity extends Activity {
     			} catch (Exception e) {
     				Log.v(LogKey, e.getMessage());
     			}
+            }else{
+            	if(isDebug){
+            		myFile.delete();
+            		this.CheckDatabse();
+            	}
             }
     	}
     }

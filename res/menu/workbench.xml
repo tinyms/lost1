@@ -30,10 +30,5 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings_0"/>
-    <item
-        android:id="@+id/query_history_data_top_draw"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_settings_top_draw"/>
 
 </menu>
