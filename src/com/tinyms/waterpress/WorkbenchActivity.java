@@ -392,7 +392,7 @@ public class WorkbenchActivity extends Activity {
     	return SDFile.getAbsolutePath()  
                 + File.separator + DB_NAME;
     }
-    private static boolean isDebug = true;
+    private static boolean isDebug = false;
     private void CheckDatabse(){
     	Log.v(LogKey, "Check Database..");
     	String state = android.os.Environment.getExternalStorageState();
