@@ -161,24 +161,37 @@ public class WorkbenchActivity extends Activity {
 		}
     }
     
+    private static boolean empty(String str){
+    	if(str==null){
+    		return true;
+    	}
+    	String tmp = str.trim();
+    	if("".equals(tmp)){
+    		return true;
+    	}
+    	return false;
+    }
+    
     private static String oddsValueEmptyIf(String comName,String comKey,Map<String,String> item){
-		if(item.get("Odds_"+comKey)!=null&&!"".equals(item.get("Odds_"+comKey))){
-			return comName+": "+item.get("Odds_"+comKey)+" ~ "+item.get("Odds_"+comKey+"_Change")+"<br/>";
-		}
+    	if(!empty(item.get("Odds_"+comKey))){
+    		return comName+": "+item.get("Odds_"+comKey)+" ~ "+item.get("Odds_"+comKey+"_Change")+"<br/>";
+    	}
 		return "";
 	}
     
     private static String oddsChangeEmptyIf(String comName,String comKey,Map<String,String> item){
-    	if(item.get("Odds_"+comKey)!=null&&!"".equals(item.get("Odds_"+comKey))){
-			return comName+": "+OddsStatistics(item.get("Odds_"+comKey),item.get("Odds_"+comKey+"_Change"))+"<br/>";
-		}
+    	if(!empty(item.get("Odds_"+comKey))){
+    		return comName+": "+OddsStatistics(item.get("Odds_"+comKey),item.get("Odds_"+comKey+"_Change"))+"<br/>";
+    	}
 		return "";
     }
     
     private static String oddsModelChangeEmptyIf(String comName,String comKey,Map<String,String> item){
-    	String changeModel = OddsModelStatistics(item.get("Odds_"+comKey),item.get("Odds_"+comKey+"_Change"));
-    	if(!"".equals(changeModel)){
-    		return comName+": "+changeModel+"<br/>";
+    	if(!empty(item.get("Odds_"+comKey))){
+    		String changeModel = OddsModelStatistics(item.get("Odds_"+comKey),item.get("Odds_"+comKey+"_Change"));
+	    	if(!"".equals(changeModel)){
+	    		return comName+": "+changeModel+"<br/>";
+	    	}
     	}
 		return "";
     }
@@ -379,7 +392,7 @@ public class WorkbenchActivity extends Activity {
     	return SDFile.getAbsolutePath()  
                 + File.separator + DB_NAME;
     }
-    private static boolean isDebug = false;
+    private static boolean isDebug = true;
     private void CheckDatabse(){
     	Log.v(LogKey, "Check Database..");
     	String state = android.os.Environment.getExternalStorageState();
