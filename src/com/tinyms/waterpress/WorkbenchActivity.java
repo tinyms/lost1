@@ -78,18 +78,33 @@ public class WorkbenchActivity extends Activity {
 				sb.append(oddsValueEmptyIf("易博","YSB",item));
 				sb.append(oddsValueEmptyIf("贝塔","365",item));
 				sb.append(oddsValueEmptyIf("澳门","AM",item));
+				sb.append(oddsValueEmptyIf("因特","Inerwetten",item));
+				sb.append(oddsValueEmptyIf("皇冠","HG",item));
+				sb.append(oddsValueEmptyIf("韦德","WD",item));
+				sb.append(oddsValueEmptyIf("必赢","Bwin",item));
+				sb.append(oddsValueEmptyIf("十贝","10bet",item));
 				sb.append("<br/>");
 				sb.append(oddsChangeEmptyIf("威廉","WL",item));
 				sb.append(oddsChangeEmptyIf("立博","LB",item));
 				sb.append(oddsChangeEmptyIf("易博","YSB",item));
 				sb.append(oddsChangeEmptyIf("贝塔","365",item));
 				sb.append(oddsChangeEmptyIf("澳门","AM",item));
-				sb.append("<br/>");
-				sb.append(oddsModelChangeEmptyIf("威廉","WL",item));
-				sb.append(oddsModelChangeEmptyIf("立博","LB",item));
-				sb.append(oddsModelChangeEmptyIf("易博","YSB",item));
-				sb.append(oddsModelChangeEmptyIf("贝塔","365",item));
-				sb.append(oddsModelChangeEmptyIf("澳门","AM",item));
+				sb.append(oddsChangeEmptyIf("因特","Inerwetten",item));
+				sb.append(oddsChangeEmptyIf("皇冠","HG",item));
+				sb.append(oddsChangeEmptyIf("韦德","WD",item));
+				sb.append(oddsChangeEmptyIf("必赢","Bwin",item));
+				sb.append(oddsChangeEmptyIf("十贝","10bet",item));
+//				sb.append("<br/>");
+//				sb.append(oddsModelChangeEmptyIf("威廉","WL",item));
+//				sb.append(oddsModelChangeEmptyIf("立博","LB",item));
+//				sb.append(oddsModelChangeEmptyIf("易博","YSB",item));
+//				sb.append(oddsModelChangeEmptyIf("贝塔","365",item));
+//				sb.append(oddsModelChangeEmptyIf("澳门","AM",item));
+//				sb.append(oddsModelChangeEmptyIf("Iner","Inerwetten",item));
+//				sb.append(oddsModelChangeEmptyIf("皇冠","HG",item));
+//				sb.append(oddsModelChangeEmptyIf("韦德","WD",item));
+//				sb.append(oddsModelChangeEmptyIf("Bwin","Bwin",item));
+//				sb.append(oddsModelChangeEmptyIf("10bet","10bet",item));
 				
 				Intent intent = new Intent(WorkbenchActivity.this,DetailsActivity.class);
 				intent.putExtra(DetailsActivity.KEY_STRIKE, text_strike);
@@ -147,6 +162,21 @@ public class WorkbenchActivity extends Activity {
     		}else if("AM".equals(name)){
     			item.put("Odds_AM", r_3+" "+r_1+" "+r_0);
     			item.put("Odds_AM_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("Inerwetten".equals(name)){//other
+    			item.put("Odds_Inerwetten", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_Inerwetten_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("HG".equals(name)){
+    			item.put("Odds_HG", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_HG_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("WD".equals(name)){
+    			item.put("Odds_WD", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_WD_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("Bwin".equals(name)){
+    			item.put("Odds_Bwin", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_Bwin_Change", r_3_c+" "+r_1_c+" "+r_0_c);
+    		}else if("10bet".equals(name)){
+    			item.put("Odds_10bet", r_3+" "+r_1+" "+r_0);
+    			item.put("Odds_10bet_Change", r_3_c+" "+r_1_c+" "+r_0_c);
     		}
     		c.moveToNext();
     	}
