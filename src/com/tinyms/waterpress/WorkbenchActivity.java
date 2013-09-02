@@ -75,25 +75,29 @@ public class WorkbenchActivity extends Activity {
 				StringBuffer sb = new StringBuffer();
 				sb.append(oddsValueEmptyIf("威廉","WL",item));
 				sb.append(oddsValueEmptyIf("立博","LB",item));
-				sb.append(oddsValueEmptyIf("易博","YSB",item));
-				sb.append(oddsValueEmptyIf("贝塔","365",item));
-				sb.append(oddsValueEmptyIf("澳门","AM",item));
-				sb.append(oddsValueEmptyIf("因特","Inerwetten",item));
-				sb.append(oddsValueEmptyIf("皇冠","HG",item));
 				sb.append(oddsValueEmptyIf("韦德","WD",item));
+				sb.append(oddsValueEmptyIf("贝塔","365",item));
 				sb.append(oddsValueEmptyIf("必赢","Bwin",item));
-				sb.append(oddsValueEmptyIf("十贝","10bet",item));
+				sb.append(oddsValueEmptyIf("因特","Inerwetten",item));
+				sb.append(oddsValueEmptyIf("易博","YSB",item));
+				sb.append(oddsValueEmptyIf("澳门","AM",item));
+				//sb.append(oddsValueEmptyIf("皇冠","HG",item));
+				
+				
+				//sb.append(oddsValueEmptyIf("十贝","10bet",item));
 				sb.append("<br/>");
 				sb.append(oddsChangeEmptyIf("威廉","WL",item));
 				sb.append(oddsChangeEmptyIf("立博","LB",item));
-				sb.append(oddsChangeEmptyIf("易博","YSB",item));
-				sb.append(oddsChangeEmptyIf("贝塔","365",item));
-				sb.append(oddsChangeEmptyIf("澳门","AM",item));
-				sb.append(oddsChangeEmptyIf("因特","Inerwetten",item));
-				sb.append(oddsChangeEmptyIf("皇冠","HG",item));
 				sb.append(oddsChangeEmptyIf("韦德","WD",item));
+				sb.append(oddsChangeEmptyIf("贝塔","365",item));
 				sb.append(oddsChangeEmptyIf("必赢","Bwin",item));
-				sb.append(oddsChangeEmptyIf("十贝","10bet",item));
+				sb.append(oddsChangeEmptyIf("因特","Inerwetten",item));
+				sb.append(oddsChangeEmptyIf("易博","YSB",item));
+				sb.append(oddsChangeEmptyIf("澳门","AM",item));
+				//sb.append(oddsChangeEmptyIf("皇冠","HG",item));
+				
+				
+				//sb.append(oddsChangeEmptyIf("十贝","10bet",item));
 //				sb.append("<br/>");
 //				sb.append(oddsModelChangeEmptyIf("威廉","WL",item));
 //				sb.append(oddsModelChangeEmptyIf("立博","LB",item));
